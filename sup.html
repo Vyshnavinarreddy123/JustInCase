@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Special Surprise from JUNIOR 💖</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #ffdde1, #ee9ca7);
+      text-align: center;
+      padding: 30px;
+      overflow: hidden;
+    }
+    .box {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+    h2 { color: #ff4d6d; }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      background: #ff4d6d;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+    .option {
+      text-align: left;
+      margin: 8px 0;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .option:hover { background: #ffe0e6; }
+    #card h1 {
+      animation: fadeIn 2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    #progress {
+      font-size: 14px;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    /* Floating hearts */
+    .heart {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      background: red;
+      transform: rotate(-45deg);
+      animation: floatUp 6s linear infinite;
+      z-index: 1;
+    }
+    .heart:before,
+    .heart:after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .heart:before { top: -10px; left: 0; }
+    .heart:after { left: 10px; top: 0; }
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(-45deg); opacity:1; }
+      100% { transform: translateY(-700px) rotate(-45deg); opacity:0; }
+    }
+
+    /* Book opening effect */
+    #card {
+      transform-style: preserve-3d;
+      transform-origin: left;
+      transition: transform 1s ease-in-out;
+      transform: rotateY(-90deg);
+    }
+    #card.open {
+      transform: rotateY(0deg);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background Music -->
+<audio id="bgMusic" loop>
+  <source src="Evare.mp3" type="audio/mp3">
+</audio>
+
+<!-- Floating hearts -->
+<div id="heartsContainer"></div>
+
+<!-- Welcome Screen -->
+<div class="box" id="welcomeBox">
+  <h2>💖 Special Surprise for Akka 💖</h2>
+  <p>Akka, hit the music 🎵 and let the fun begin!</p>
+  <button onclick="startQuiz()" id="welcomeMusicBtn">
+    🎵 Play Music
+  </button>
+</div>
+
+<!-- Quiz Box -->
+<div class="box hidden" id="quizBox">
+  <h2 id="question"></h2>
+  <div id="options"></div>
+  <p id="msg"></p>
+  <p id="progress"></p>
+  <button onclick="checkAnswer()">Next</button>
+</div>
+
+<!-- Final Card -->
+<div class="box hidden" id="card">
+  <h1>Happy Valentine’s Day Akka 💖</h1>
+  <p>
+    Not all valentines are about romance ❤️<br>
+    Some are about love, care, and forever bonds 🌸<br>
+    Thank you for always being there for me.
+  </p>
+  <p>Love you always 🤍</p>
+  <h3>– Vyshu</h3>
+</div>
+
+<!-- Confetti library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+<script>
+  // Quiz data
+  const questions = [
+    { q: "What is our fav FOOD?", options: ["Dosa", "Gobi Rice", "Parota", "Panner"], answer: 1 },
+    { q: "Where did we go together for the FIRST time?", options: ["Sarangapani", "Velankanni", "Belgian Waffle", "Grand Inn"], answer: 0 },
+    { q: "One thing YOU always complain about ME?", options: ["Light during night", "Sleep", "Studies", "Not having boyfriend"], answer: 0 },
+    { q: "What do we do most of the time? 😄", options: ["Seeing series together", "Talking & laughing", "Gossiping [BITCHING 😄]", "Planning trips", "All the Above 😅"], answer: 4 },
+    { q: "HOw much we both love each other?", options: ["Yes ❤️", "Yess 🤍","Yesss 😍","Yessss ❤️"], answer: 3 }
+  ];
+
+  let index = 0;
+
+  // Load quiz question
+  function loadQuestion() {
+    document.getElementById("msg").innerText = "";
+    document.getElementById("question").innerText = questions[index].q;
+    let optionsHTML = "";
+    questions[index].options.forEach((opt, i) => {
+      optionsHTML += `
+        <div class="option">
+          <input type="radio" name="option" value="${i}"> ${opt}
+        </div>`;
+    });
+    document.getElementById("options").innerHTML = optionsHTML;
+    document.getElementById("progress").innerText = `Question ${index+1} of ${questions.length}`;
+  }
+
+  // Check answer and auto-move
+  function checkAnswer() {
+    const selected = document.querySelector('input[name="option"]:checked');
+    if (!selected) {
+      document.getElementById("msg").innerText = "Please select an option 😊";
+      return;
+    }
+
+    const optionDivs = document.querySelectorAll('.option');
+    optionDivs.forEach(div => div.style.background = "white"); // reset
+
+    if (parseInt(selected.value) === questions[index].answer) {
+      selected.parentElement.style.background = "#d4edda"; // green
+
+      setTimeout(() => {
+        index++;
+        if (index < questions.length) {
+          loadQuestion();
+        } else {
+          showCard();
+        }
+      }, 500);
+
+    } else {
+      selected.parentElement.style.background = "#f8d7da"; // red
+      document.getElementById("msg").innerText = "What akka What is this akka 😉";
+    }
+  }
+
+  // Show final card
+  function showCard() {
+    document.getElementById("quizBox").classList.add("hidden");
+    const card = document.getElementById("card");
+    card.classList.remove("hidden");
+    setTimeout(() => card.classList.add("open"), 50); // book flip
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+  }
+
+  // Start quiz from welcome button
+  function startQuiz() {
+    const audio = document.getElementById("bgMusic");
+    if(audio) audio.play().catch(e => console.log("Audio blocked:", e));
+
+    document.getElementById("welcomeBox").classList.add("hidden");
+    document.getElementById("quizBox").classList.remove("hidden");
+
+    loadQuestion();
+  }
+
+  // Floating hearts
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.animationDuration = 4 + Math.random()*4 + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 6000);
+  }
+  setInterval(createHeart, 500);
+
+</script>
+
+</body>
+</html>
